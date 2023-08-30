@@ -1,113 +1,629 @@
-import Image from 'next/image'
+"use client"
 
-export default function Home() {
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { useFormik } from 'formik';
+import { useStore } from './store/store';
+import { shallow } from 'zustand/shallow';
+import Link from 'next/link';
+import * as Yup from 'yup';
+import { useState } from 'react';
+
+
+  export default function Home() {
+
+
+    const handlePrint = () => {
+      window.print();
+    };
+
+
+     const [formSubmitted, setFormSubmitted] = useState(true);
+    const [items, addItem] = useStore((state) => [state.items, state.addItem], shallow);
+    // console.log("items", items);
+  
+
+
+
+
+
+    const movieOptions = [
+      { label: 'sick', value: '1' },
+      { label: 'personal', value: '2' },
+    ];
+  
+    const [printVisible, setPrintVisible] = useState(false);
+  
+    const validationSchema = Yup.object().shape({
+      school_pass_year: Yup.string().required('Select a reason'),
+      bossname: Yup.string().required('Boss Name is required'),
+      id: Yup.string().required('ID Number is required'),
+      name: Yup.string().required('Name is required'),
+      current_description: Yup.string().required('Description is required'), 
+      startdate: Yup.string().required('Start Date is required'),
+      enddate: Yup.string().required('End Date is required'),
+      information: Yup.string().required('Information is required'), 
+    });
+  
+    const [printData, setPrintData] = useState(null);
+  
+    const {
+      handleChange,
+      handleBlur,
+      values,
+      handleSubmit,
+      resetForm,
+      touched,
+      errors
+    } = useFormik({
+      initialValues: {
+        school_pass_year: "",
+        bossname: "",
+        id: "",
+        name: "",
+        current_description: "",
+        startdate: "",
+        enddate: "",
+        information: "",
+      },
+      validationSchema: validationSchema,
+      onSubmit: async (data) => {
+        try {
+          console.log(data);
+  
+          const newData = {
+            value: data.school_pass_year,
+            bossname: data.bossname,
+            id: data.id,
+            name: data.name,
+            current_description: data.current_description,
+            startdate: data.startdate,
+            enddate: data.enddate,
+            information: data.information,
+          };
+          addItem(newData);
+           resetForm();
+           setFormSubmitted(false)
+          setPrintVisible(true);
+          setPrintData(newData);
+        } catch (error) {}
+      },
+    });
+ 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className='container mx-auto'>
+      <form className='' onSubmit={handleSubmit}>
+        <div className='mt-5'>
+          { formSubmitted && (
+            <FormControl fullWidth required size="small">
+            <InputLabel>Select your Reason</InputLabel>
+            <Select
+              name="school_pass_year"
+              value={values.school_pass_year}
+              label="SSC Passing Year"
+              onChange={handleChange}
+              onBlur={handleBlur}
+            >
+              {movieOptions.map((movie) => (
+                <MenuItem key={movie.label} value={movie.label}>
+                  {movie.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          )}
+          {/* <div className='flex items-center justify-center gap-10'>
+
+            <button className='mt-4 border border-gray-500 rounded-md px-4 py-2' type='submit'>
+              Submit
+            </button>
+
+            <Link href="/details">
+              <button className='mt-4 border border-gray-500 rounded-md px-4 py-2'>
+                Go to Details
+              </button>
+            </Link>
+          </div> */}
+
+          {/* Conditional rendering based on selected value */}
+
+{values.school_pass_year === 'personal' && (
+       <div className='container text-justify mx-auto mt-10'>
+       <div className='email'>
+       <div className='email'>
+       Dear
+       <TextField
+         label="Boss Name"
+         value={values.bossname}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="bossname"
+         error={touched.bossname && Boolean(errors.bossname)}
+         helperText={touched.bossname && errors.bossname}
+       />.
+       <br/><br/>
+       I hope this email finds you well. I am writing to formally request a period of sick leave due to my current health condition. I am unable to perform my duties effectively and believe it is in the best interest of both my health and the company that I take some time to recover.
+       <br/><br/>
+       My name is
+       <TextField
+         label="Name"
+         value={values.name}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="name"
+         error={touched.bossname && Boolean(errors.bossname)}
+         helperText={touched.bossname && errors.bossname}
+       />
+       , and my employee ID is
+       <TextField
+         label="ID Number"
+         value={values.id}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="id"
+         error={touched.id && Boolean(errors.id)}
+         helperText={touched.id && errors.id}
+       />. I am currently experiencing
+       <TextField
+         label="Current Description"
+         value={values.current_description}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="current_description"
+         error={touched.current_description && Boolean(errors.current_description)}
+         helperText={touched.current_description && errors.current_description}
+       />
+       and my doctor has advised that I take time off work to rest and recover. I anticipate that I will need to be on sick leave from
+       <TextField
+         label="Start Date"
+         value={values.startdate}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="startdate"
+         error={touched.startdate && Boolean(errors.startdate)}
+         helperText={touched.startdate && errors.startdate}
+       />
+       to 
+       <TextField
+         label="Last Name"
+         value={values.enddate}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="enddate"
+         error={touched.enddate && Boolean(errors.enddate)}
+         helperText={touched.enddate && errors.enddate}
+       />.
+       <br/><br/>
+       During my absence, I am committed to ensuring a smooth transition of my responsibilities. I have already [mention any actions you have taken to delegate tasks or notify colleagues about your absence]. If there are any urgent matters that require immediate attention during my sick leave, please hesitate to contact me via email or phone, and I will do my best to assist remotely.
+       <br/><br/>
+       I understand the importance of my role and the impact my absence might have on the workflow. I assure you that I will stay updated and engaged as much as my health allows, and I am confident in the ability to manage during my absence.
+       <br/><br/>
+       I will provide regular updates on my condition and, if necessary, a note to confirm my need for sick leave. I appreciate your understanding and support in this matter.
+       <br/><br/>
+       Thank you for considering my request. I look forward to returning to work as soon as I am able.
+       <br/><br/>
+       Sincerely,
+       <TextField
+         label="Name"
+         value={values.name}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="name"
+         error={touched.name && Boolean(errors.name)}
+         helperText={touched.name && errors.name}
+       />
+       .<br/>
+       <TextField
+         label="Contact Information"
+         value={values.information}
+         onChange={handleChange}
+         onBlur={handleBlur}
+         name="information"
+         error={touched.information && Boolean(errors.information)}
+         helperText={touched.information && errors.information}
+       />
+       .<br/>
+ 
+       <button type='submit'  className='border mt-4 px-4 py-2 rounded-md '>submit</button>
+       {/* <Link href="/details"> <button className='px-4 py-2 border rounded '>print</button></Link> */}
+     </div>
         </div>
-      </div>
+       </div>   
+        )}
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+  
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+          {values.school_pass_year === 'sick' && (
+            <div className='container text-justify mx-auto mt-10'>
+              <div className='email'>
+              <div className='email'>
+              Dear
+              <TextField
+                label="Boss Name"
+                value={values.bossname}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="bossname"
+                error={touched.bossname && Boolean(errors.bossname)}
+                helperText={touched.bossname && errors.bossname}
+              />.
+              <br/><br/>
+              I hope this email finds you well. I am writing to formally request a period of sick leave due to my current health condition. I am unable to perform my duties effectively and believe it is in the best interest of both my health and the company that I take some time to recover.
+              <br/><br/>
+              My name is
+              <TextField
+                label="Name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="name"
+                error={touched.bossname && Boolean(errors.bossname)}
+                helperText={touched.bossname && errors.bossname}
+              />
+              , and my employee ID is
+              <TextField
+                label="ID Number"
+                value={values.id}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="id"
+                error={touched.id && Boolean(errors.id)}
+                helperText={touched.id && errors.id}
+              />. I am currently experiencing
+              <TextField
+                label="Current Description"
+                value={values.current_description}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="current_description"
+                error={touched.current_description && Boolean(errors.current_description)}
+                helperText={touched.current_description && errors.current_description}
+              />
+              and my doctor has advised that I take time off work to rest and recover. I anticipate that I will need to be on sick leave from
+              <TextField
+                label="Start Date"
+                value={values.startdate}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="startdate"
+                error={touched.startdate && Boolean(errors.startdate)}
+                helperText={touched.startdate && errors.startdate}
+              />
+              to 
+              <TextField
+                label="Last Name"
+                value={values.enddate}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="enddate"
+                error={touched.enddate && Boolean(errors.enddate)}
+                helperText={touched.enddate && errors.enddate}
+              />.
+              <br/><br/>
+              During my absence, I am committed to ensuring a smooth transition of my responsibilities. I have already [mention any actions you have taken to delegate tasks or notify colleagues about your absence]. If there are any urgent matters that require immediate attention during my sick leave, please hesitate to contact me via email or phone, and I will do my best to assist remotely.
+              <br/><br/>
+              I understand the importance of my role and the impact my absence might have on the workflow. I assure you that I will stay updated and engaged as much as my health allows, and I am confident in the ability to manage during my absence.
+              <br/><br/>
+              I will provide regular updates on my condition and, if necessary, a note to confirm my need for sick leave. I appreciate your understanding and support in this matter.
+              <br/><br/>
+              Thank you for considering my request. I look forward to returning to work as soon as I am able.
+              <br/><br/>
+              Sincerely,
+              <TextField
+                label="Name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="name"
+                error={touched.name && Boolean(errors.name)}
+                helperText={touched.name && errors.name}
+              />
+              .<br/>
+              <TextField
+                label="Contact Information"
+                value={values.information}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="information"
+                error={touched.information && Boolean(errors.information)}
+                helperText={touched.information && errors.information}
+              />
+              .<br/>
+        
+              <button type='submit'  className='border mt-4 px-4 py-2 rounded-md '>submit</button>
+              {/* <Link href="/details"> <button className='px-4 py-2 border rounded '>print</button></Link> */}
+            </div>
+               </div>
+              </div>
+            
+          )}
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
+{printVisible && (
+        <div className='print'>
+          Dear {printData.bossname}
+          <br/><br/>
+              I hope this email finds you well. I am writing to formally
+               request a period of sick leave due to my current health condition. I am unable to perform my duties effectively 
+               and believe it is in the best interest of both my health and the company that I take some time to recover.
+              <br/><br/>
+              My name is 
+              
+              {
+                printData.name
+              }
+              , and my employee ID is 
+              {
+                printData.id
+              } . I am currently experiencing
+              {
+                printData.current_description
+              }
+              and my doctor has advised that I take time off work to rest and recover. I anticipate that I will need to be on sick leave from
+              {
+                printData.startdate
+              }
+              to
+              {
+                printData.enddate
+              }
+              <br/><br/>
+              During my absence, I am committed to ensuring a smooth transition of my responsibilities. I have already [mention any actions you have taken to delegate tasks or notify colleagues about your absence]. If there are any urgent matters that require immediate attention during my sick leave, please hesitate to contact me via email or phone, and I will do my best to assist remotely.
+              <br/><br/>
+              I understand the importance of my role and the impact my absence might have on the workflow. I assure you that I will stay updated and engaged as much as my health allows, and I am confident in the ability to manage during my absence.
+              <br/><br/>
+              I will provide regular updates on my condition and, if necessary, a note to confirm my need for sick leave. I appreciate your understanding and support in this matter.
+              <br/><br/>
+              Thank you for considering my request. I look forward to returning to work as soon as I am able.
+              <br/><br/>
+              Sincerely,
+              {printData.name}
+              . <br/>
+              {
+                printData.information
+              }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+
+              <div className='flex items-center justify-center mt-5 gap-10'> 
+                <button onClick={()=>{handlePrint()}} className='px-4 py-2 border rounded '>Print</button>
+               <Link href="/"> <button className='px-4 py-2 border rounded ' onClick={()=>{setFormSubmitted(true),setPrintVisible(false)}}>Back</button></Link>
+              </div>
+          
+        </div>
+      )}
+        </div>
+      </form>
+
+     
+      {
+
+      }
+
+  
     </main>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client"
+// import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+// import { useFormik } from 'formik';
+// import { useStore } from './store/store';
+// import { shallow } from 'zustand/shallow';
+// import Link from 'next/link';
+
+// export default function Home() {
+//   const [items, addItem] = useStore((state) => [state.items, state.addItem], shallow);
+//   console.log("items",items)
+
+//   const movieOptions = [
+//     { label: 'sick', value: '1' },
+//     { label: 'personal issue', value: '2' },
+//   ];
+
+//   const {
+//     handleChange,
+//     handleBlur,
+//     values,
+//     handleSubmit,
+//     resetForm,
+//   } = useFormik({
+   
+//     initialValues: {
+//       school_pass_year: "",
+//       bossname: "",
+//       id: "",
+//       name: "",
+//       current_description: "",
+//       startdate: "",
+//       enddate: "",
+//       information: "",
+//     },
+//     onSubmit: async (data) => {
+//       try {
+//         console.log(data);
+       
+//         const newData={
+//           value:data.school_pass_year,
+//           bossname:data.bossname,
+//           id:data.id,
+//           name:data.name,
+//       current_description:
+//       data.current_description ,
+     
+//       startdate:data.startdate,
+//       enddate:data.enddate,
+//       information:data.information
+//         }
+//         addItem(newData); // Add the captured data to the items using the addItem function
+//         resetForm();
+//       } catch (error) {}
+//     },
+//   });
+
+//   return (
+//     <main className='container mx-auto'>
+//       <form className='' onSubmit={handleSubmit}>
+//         <div className='mt-5'>
+//           <FormControl fullWidth required size="small">
+//             <InputLabel>Select your Reason</InputLabel>
+//             <Select
+//               name="school_pass_year"
+//               value={values.school_pass_year}
+//               label="SSC Passing Year"
+//               onChange={handleChange}
+//               onBlur={handleBlur}
+//             >
+//               {movieOptions.map((movie) => (
+//                 <MenuItem key={movie.label} value={movie.label}>
+//                   {movie.label}
+//                 </MenuItem>
+//               ))}
+//             </Select>
+//           </FormControl>
+//           <div className='flex items-center justify-center gap-10'>
+           
+//             <button className='mt-4 border border-gray-500 rounded-md px-4 py-2' type='submit'>
+//               Submit
+//             </button>
+
+//             <Link href="/details">
+//             <button className='mt-4 border border-gray-500 rounded-md px-4 py-2' >
+//          go
+//             </button></Link>
+//           </div>
+          
+          //   <div className='email'>
+          //     Dear
+          //     <TextField
+          //       label="Boss Name"
+          //       value={values.bossname}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="bossname"
+          //       error={touched.bossname && Boolean(errors.bossname)}
+          //       helperText={touched.bossname && errors.bossname}
+          //     />.
+          //     <br/><br/>
+          //     I hope this email finds you well. I am writing to formally request a period of sick leave due to my current health condition. I am unable to perform my duties effectively and believe it is in the best interest of both my health and the company that I take some time to recover.
+          //     <br/><br/>
+          //     My name is
+          //     <TextField
+          //       label="Name"
+          //       value={values.name}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="name"
+          //       error={touched.bossname && Boolean(errors.bossname)}
+          //       helperText={touched.bossname && errors.bossname}
+          //     />
+          //     , and my employee ID is
+          //     <TextField
+          //       label="ID Number"
+          //       value={values.id}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="id"
+          //       error={touched.id && Boolean(errors.id)}
+          //       helperText={touched.id && errors.id}
+          //     />. I am currently experiencing
+          //     <TextField
+          //       label="Current Description"
+          //       value={values.current_description}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="current_description"
+          //       error={touched.current_description && Boolean(errors.current_description)}
+          //       helperText={touched.current_description && errors.current_description}
+          //     />
+          //     and my doctor has advised that I take time off work to rest and recover. I anticipate that I will need to be on sick leave from
+          //     <TextField
+          //       label="Start Date"
+          //       value={values.startdate}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="startdate"
+          //       error={touched.startdate && Boolean(errors.startdate)}
+          //       helperText={touched.startdate && errors.startdate}
+          //     />
+          //     to
+          //     <TextField
+          //       label="Last Name"
+          //       value={values.enddate}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="enddate"
+          //       error={touched.enddate && Boolean(errors.enddate)}
+          //       helperText={touched.enddate && errors.enddate}
+          //     />.
+          //     <br/><br/>
+          //     During my absence, I am committed to ensuring a smooth transition of my responsibilities. I have already [mention any actions you have taken to delegate tasks or notify colleagues about your absence]. If there are any urgent matters that require immediate attention during my sick leave, please hesitate to contact me via email or phone, and I will do my best to assist remotely.
+          //     <br/><br/>
+          //     I understand the importance of my role and the impact my absence might have on the workflow. I assure you that I will stay updated and engaged as much as my health allows, and I am confident in the ability to manage during my absence.
+          //     <br/><br/>
+          //     I will provide regular updates on my condition and, if necessary, a note to confirm my need for sick leave. I appreciate your understanding and support in this matter.
+          //     <br/><br/>
+          //     Thank you for considering my request. I look forward to returning to work as soon as I am able.
+          //     <br/><br/>
+          //     Sincerely,
+          //     <TextField
+          //       label="Name"
+          //       value={values.name}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="name"
+          //       error={touched.name && Boolean(errors.name)}
+          //       helperText={touched.name && errors.name}
+          //     />
+          //     .<br/>
+          //     <TextField
+          //       label="Contact Information"
+          //       value={values.information}
+          //       onChange={handleChange}
+          //       onBlur={handleBlur}
+          //       name="information"
+          //       error={touched.information && Boolean(errors.informationssname)}
+          //       helperText={touched.information && errors.information}
+          //     />
+          //     .<br/>
+          //     <button type='submit' className='border mt-4 px-4 py-2 rounded-md '>print</button>
+          //   </div>
+          // </div>
+     
+//       </form>
+//     </main>
+//   )
+// }
